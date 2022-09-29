@@ -1,0 +1,33 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: corerpo-rpo-build-
+spec:
+  pipelineRef:
+    name: corerpo-rpo
+  serviceAccountName: pipeline
+  params:
+    - name: buildRevision
+      value: "dev/main"
+    - name: appGitUrl
+      value: "git@gitlab.rfosp.local:rfosp/corerpo.git"
+  workspaces:
+    - name: app-source
+      persistentVolumeClaim:
+        claimName: corerpo-rpo-workspace-pvc
+      subPath: source
+    - name: maven-m2-storage
+      persistentVolumeClaim:
+        claimName: corerpo-rpo-workspace-pvc
+      subPath: m2
+    - name: kaniko-storage
+      persistentVolumeClaim:
+        claimName: corerpo-rpo-workspace-pvc
+      subPath: kaniko
+    - name: dockerconfig
+      secret:
+        secretName: registry-harbor-infra.rfosp.local
+        items:
+          - key: .dockerconfigjson
+            path: config.json

@@ -1,0 +1,18 @@
+{{- if .Values.istio.enabled -}}
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: {{ template "project.fullname" . }}
+  namespace: {{ $.Values.namespace | default $.Release.Namespace }}
+spec:
+  hosts:
+    - {{ $.Values.istio.hostname }}
+  gateways:
+    - {{ $.Values.istio.gateway }}
+  http:
+    - route:
+      - destination:
+          host: {{ template "project.fullname" . }}
+          port:
+           number: 8080
+{{- end }}

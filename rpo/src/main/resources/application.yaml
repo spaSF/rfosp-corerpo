@@ -1,0 +1,79 @@
+logging:
+  level:
+    org.zalando.logbook: TRACE
+    org.springframework.cloud.kubernetes: DEBUG
+
+  #    root=DEBUG:
+  pattern.level: "%5p [${spring.application.name:},%mdc{trace_id:-},%mdc{span_id:-},%mdc{trace_flags:-}]"
+
+server:
+  port: 8080
+  shutdown: graceful
+  servlet:
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+
+management:
+  server:
+    port: 9090
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  info:
+    java:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+
+springdoc:
+  use-management-port: true
+  show-actuator: true
+  api-docs:
+    enabled: true
+  group-configs:
+    - group: api
+      displayName: api
+      paths-to-match: /api/**
+
+web:
+  paging:
+    defaultPageSize: 100
+    #boundLimit:
+
+logbook:
+  include:
+    # server
+    - /api/**
+  filter.enabled: true
+  secure-filter.enabled: true
+  #format.style: json
+  format.style: http
+  strategy: default
+  #strategy: body-only-if-status-at-least
+  #minimum-status: 400
+  obfuscate:
+    headers:
+      - Authorization
+      - X-Secret
+      - x-on-behalf-of
+    parameters:
+      - access_token
+      - password
+  #write:
+  #  chunk-size: 1000

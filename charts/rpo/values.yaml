@@ -1,0 +1,128 @@
+image:
+  registry: some-registry.example.com
+  repository: repo/rpo
+  tag: 1.0.0
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+# name of executable jar inside image
+java:
+  exec: rpo-0.0.1-SNAPSHOT.jar
+
+# if stateful true then chart creates StatefulSet otherwise Deployment
+# use StatefulSet only if application is stateful
+stateful: false
+persistentVolumes:
+  accessMode: ReadWriteOnce
+  # storageClass:
+  size: 200M
+
+replicas: 2
+
+##
+annotations: {}
+
+service:
+  type: ClusterIP
+  annotations: {}
+  labels: {}
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # labels
+  labels: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name:
+
+# configuration of metrics
+otel:
+  # specifies whether metrics should be send to receiver
+  enabled: false
+  # endpoint of open telemetry receiver - change to working uri
+  # endpoint: "http://open-telemetry-receiver:<port>"
+  endpoint: ""
+  # protocol used by the open telemetry receiver
+  protocol: "grpc"
+  # additional configuration of open telemetry agent
+  config:
+    otel.instrumentation.jdbc.enabled: false
+
+#
+remotedebug:
+  enabled: false
+  port: 5005
+
+# configuration of metric annotations used by prometheus service discovery
+metrics:
+  enabled: false
+  scrape: false
+  port: "9090"
+  path: "/actuator/prometheus"
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  # spread pods across all worker nodes
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - rpo
+          topologyKey: "kubernetes.io/hostname"
+
+# spring boot config
+# all values in this section will be passed to <ChARTNAME>-app ConfigMaps application.yaml file
+# it can be yaml style or flattened structure like spring.some.config.param: value
+config:
+#  spring:
+#    db:
+#      system:
+#        url: jdbc:postgresql://postgresql-pgpool.sfrb-dev-psql:5432/esb?ApplicationName=${spring.application.name}-system
+#        username: esb
+#        password: n1ny+TQclvqpcpadD5RNjaKhAYaVyP6cUL25UMJ+qJQ=
+
+
+# spring boot config secrets
+# secrets will be mounted to /var/secrets, springboot is configured to watch this dir, example bellow
+configSecrets: {}
+#  db.system.password:
+#    secretName: name-of-secret-containing-pwd
+
+configFiles: []
+#  - name: tu-keystore
+#    filename: sfrb.tu.keystore.p12
+#    data: base64........
+
+chaosmesh:
+  byteman:
+    enabled: false
+    registry: harbor-infra.sfrb.local
+    image: library/byteman-agent
+    tag: 4.0.14-cm.1
+
+istio:
+  enabled: false
+  gateway: "istio-system/istio-gw"
+  hostname: "app.example.com"
+
+ingress:
+  enabled: false
+  host: "*"
+  path: /
+  pathType: Prefix

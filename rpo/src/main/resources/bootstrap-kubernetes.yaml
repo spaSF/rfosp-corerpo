@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: "rpo"
+
+  cloud:
+    kubernetes:
+      enabled: true
+      secrets:
+        enabled: true
+        paths: /var/secrets
+      config:
+        enabled: true
+        name: rpo-app
+        namespace: ${KUBERNETES_NAMESPACE}

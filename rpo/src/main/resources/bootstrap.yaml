@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: "rpo"
+  cloud:
+    kubernetes:
+      config:
+        enabled: false
+      enabled: false

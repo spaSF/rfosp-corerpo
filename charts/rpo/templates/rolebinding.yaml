@@ -1,0 +1,15 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ template "project.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "project.labels" . | indent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "project.serviceAccountName" . }}
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: {{ template "project.fullname" . }}
+  apiGroup: ""

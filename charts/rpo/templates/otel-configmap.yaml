@@ -1,0 +1,12 @@
+{{- if .Values.otel.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "project.fullname" . }}-otel
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "project.labels" . | indent 4 }}
+data:
+  otel-agent.properties: |+
+    {{ list .Values.otel.config | include "list-properties" | nindent 4 }}
+{{- end }}

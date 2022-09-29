@@ -1,0 +1,12 @@
+apiVersion: v2
+name: corerpo
+version: 0.0.1
+description: corerpo module
+maintainers:
+  - name: 'Gratex International a.s.'
+    email: 'todo@email.com'
+dependencies:
+  - name: rpo
+    # patch-level version match
+    version: 0.1.0
+    repository: 'file://rpo/'

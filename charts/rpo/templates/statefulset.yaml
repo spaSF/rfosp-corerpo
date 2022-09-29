@@ -1,0 +1,38 @@
+{{- $fullname := include "project.fullname" . }}
+{{- if .Values.stateful }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $fullname }}
+  annotations:
+{{- if .Values.annotations }}
+{{ toYaml .Values.annotations | indent 4 }}
+{{- end }}
+  labels:
+{{ include "project.labels" . | indent 4 }}
+{{- if .Values.podLabels }}
+{{ toYaml .Values.podLabels | indent 4 }}
+{{- end }}
+spec:
+  serviceName: {{ $fullname }}
+  replicas: {{ .Values.replicas | default 1 }}
+  revisionHistoryLimit: 10
+
+  selector:
+    matchLabels:
+      app: {{ template "project.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    {{- include "project.podTemplate" . | nindent 4 }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ {{ .Values.persistentVolumes.accessMode | quote }} ]
+        {{- if .Values.persistentVolumes.storageClass }}
+        storageClassName: {{ .Values.persistentVolumes.storageClass | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistentVolumes.size | default "100M" }}
+{{- end }}

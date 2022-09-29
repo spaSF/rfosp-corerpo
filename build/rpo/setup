@@ -1,0 +1,2 @@
+# run once before build
+kpt install -y java:openjdk17 general:maven3-8

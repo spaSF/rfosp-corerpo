@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+cd "$(dirname "$0")"
+source ../lib/_lib
+include "cm"
+
+
+
+if [[ "${1:-}" == "snapshot" ]] ; then export version="0" ; fi
+
+if [ -f ./env.yaml ] ; then
+    configToEnv ./env.yaml
+fi
+
+export version=$(../lib/modules/git/tag list --format number "${CM_SUBPROJECT}")
+export CM_BUILD_DOVERSION="${version}"
+
+../lib/local/build

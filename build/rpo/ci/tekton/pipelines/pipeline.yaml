@@ -1,0 +1,131 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: corerpo-rpo
+  labels:
+    app.kubernetes.io/version: 0.0.1
+  annotations:
+    tekton.dev/displayName: corerpo-rpo build pipeline
+spec:
+  params:
+  - name: appGitUrl
+    description: The application repository
+  - name: buildRevision
+    description: The revision of the build, i.e. the commit revision of the application repository
+  - name: module
+    description: Module name
+    default: corerpo
+  - name: subproject
+    description: Subproject name
+    default: rpo
+  workspaces:
+  - name: app-source
+  - name: gradle-storage
+  - name: kaniko-storage
+  - name: dockerconfig
+  tasks:
+  - name: git-checkout
+    taskRef:
+      kind: Task
+      name: git-checkout
+    params:
+    - name: buildRevision
+      value: $(params.buildRevision)
+    - name: appGitUrl
+      value: $(params.appGitUrl)
+    workspaces:
+    - name: app-source
+      workspace: app-source
+  - name: pre-build
+    taskRef:
+      kind: Task
+      name: pre-build
+    runAfter:
+    - git-checkout
+    params:
+    - name: subproject
+      value: $(params.subproject)
+    workspaces:
+    - name: app-source
+      workspace: app-source
+  - name: build-corerpo-rpo
+    taskRef:
+      kind: Task
+      name: build-gradle
+    runAfter:
+    - pre-build
+    params:
+    - name: subproject
+      value: $(params.subproject)
+    - name: build-number
+      value: $(tasks.pre-build.results.build-number)
+    - name: build-revision-tag
+      value: $(tasks.pre-build.results.build-revision-tag)
+    - name: build-revision
+      value: $(tasks.pre-build.results.build-revision)
+    when:
+    - input: $(tasks.pre-build.results.build-exists)
+      operator: notin
+      values:
+      - 'true'
+    workspaces:
+    - name: app-source
+      workspace: app-source
+    - name: gradle-storage
+      workspace: gradle-storage
+  - name: build-image
+    taskRef:
+      kind: Task
+      name: build-image
+    runAfter:
+    - build-corerpo-rpo
+    params:
+    - name: CONTEXT
+      value: /build/$(params.subproject)/image
+    - name: REGISTRY
+      value: harbor-infra.rfosp.local
+    - name: REPOSITORY
+      value: /rfosp/$(params.module)/$(params.subproject)
+    - name: TAG
+      value: $(tasks.pre-build.results.build-number)
+    workspaces:
+    - name: app-source
+      workspace: app-source
+    - name: kaniko-storage
+      workspace: kaniko-storage
+    - name: dockerconfig
+      workspace: dockerconfig
+  finally:
+  - name: artifact-register
+    taskRef:
+      kind: Task
+      name: artifact-register
+    params:
+    - name: SUBPROJECT
+      value: $(params.subproject)
+    - name: VERSION
+      value: $(tasks.pre-build.results.build-number)
+    - name: GIT_TAG
+      value: $(tasks.pre-build.results.build-revision-tag)
+    when:
+    - input: $(tasks.status)
+      operator: in
+      values:
+      - Succeeded
+      - Completed
+    workspaces:
+    - name: app-source
+      workspace: app-source
+  - name: notify
+    taskRef:
+      kind: Task
+      name: send-to-zulip
+    params:
+    - name: status
+      value: $(tasks.status)
+    - name: pipelineName
+      value: $(context.pipelineRun.name)
+    - name: namespace
+      value: $(context.pipelineRun.namespace)
+    - name: message
+      value: 'Build `$(context.pipeline.name):$(tasks.pre-build.results.build-number)` finished with status: `$(tasks.status)`'

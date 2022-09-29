@@ -1,0 +1,13 @@
+# Values for Istio VirtualService used instead of Ingress
+istio:
+  enabled: false
+  gateway: "istio-system/istio-gw"
+  rpo:
+    hostname: "rpo.corerpo.example.com"
+
+rpo:
+  image:
+    registry: harbor-infra.rfosp.local
+    repository: rfosp/corerpo/rpo
+    tag: 'shotsnap'
+    pullPolicy: IfNotPresent

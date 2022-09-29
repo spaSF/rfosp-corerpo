@@ -1,0 +1,9 @@
+#!/bin/bash -e
+readonly DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly NAMESPACE=tekton-pipelines
+
+while IFS= read -r -d '' file
+do
+    echo "$file"
+    kubectl replace --force -n $NAMESPACE -f "$file"
+done < <(find $DIR -mindepth 2 -name '*.yaml' -print0)
