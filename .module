@@ -1,0 +1,9 @@
+[module]
+  name = corerpo
+[subproject "chart"]
+  type = chart
+  path = charts
+  semver = true
+[subproject "rpo"]
+  type = gradle
+  path = rpo

@@ -1,3 +1,5 @@
 [submodule "build/lib"]
 	path = build/lib
 	url = git@gitlab.rfosp.local:rfosp/build/lib.git
+	branch = dev/main
+	sfa = true
