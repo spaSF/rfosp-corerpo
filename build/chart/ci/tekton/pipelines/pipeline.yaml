@@ -1,11 +1,11 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: corerpo-rpo
+  name: corerpo-chart
   labels:
     app.kubernetes.io/version: 0.0.1
   annotations:
-    tekton.dev/displayName: corerpo rpo build pipeline
+    tekton.dev/displayName: corerpo chart build pipeline
 spec:
   params:
   - name: appGitUrl
@@ -17,11 +17,10 @@ spec:
     default: corerpo
   - name: subproject
     description: Subproject name
-    default: rpo
+    default: chart
   workspaces:
   - name: app-source
-  - name: gradle-storage
-  - name: kaniko-storage
+  - name: helm-storage
   - name: dockerconfig
   tasks:
   - name: git-checkout
@@ -48,51 +47,25 @@ spec:
     workspaces:
     - name: app-source
       workspace: app-source
-  - name: build-corerpo-rpo
+  - name: build-corerpo-chart
     taskRef:
       kind: Task
-      name: build-gradle
+      name: build-chart
     runAfter:
     - pre-build
-    params:
-    - name: subproject
-      value: $(params.subproject)
-    - name: build-number
-      value: $(tasks.pre-build.results.build-number)
-    - name: build-revision-tag
-      value: $(tasks.pre-build.results.build-revision-tag)
-    - name: build-revision
-      value: $(tasks.pre-build.results.build-revision)
     when:
     - input: $(tasks.pre-build.results.build-exists)
       operator: notin
       values:
       - 'true'
-    workspaces:
-    - name: app-source
-      workspace: app-source
-    - name: gradle-storage
-      workspace: gradle-storage
-  - name: build-image
-    taskRef:
-      kind: Task
-      name: build-image
-    runAfter:
-    - build-corerpo-rpo
     params:
-    - name: CONTEXT
-      value: /build/$(params.subproject)/image
-    - name: REGISTRY
-      value: harbor-infra.rfosp.local
-    - name: REPOSITORY
-      value: /rfosp/$(params.module)/$(params.subproject)
-    - name: TAG
+    - name: version
       value: $(tasks.pre-build.results.build-number)
     workspaces:
     - name: app-source
       workspace: app-source
-    - name: kaniko-storage
-      workspace: kaniko-storage
+    - name: helm-storage
+      workspace: helm-storage
     - name: dockerconfig
       workspace: dockerconfig
   finally:
