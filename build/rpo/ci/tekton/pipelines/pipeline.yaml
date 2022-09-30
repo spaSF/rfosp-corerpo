@@ -33,6 +33,8 @@ spec:
       value: $(params.buildRevision)
     - name: appGitUrl
       value: $(params.appGitUrl)
+    - name: image-repository
+      value: harbor-infra.rfosp.local
     workspaces:
     - name: app-source
       workspace: app-source
@@ -45,6 +47,8 @@ spec:
     params:
     - name: subproject
       value: $(params.subproject)
+    - name: image-repository
+      value: harbor-infra.rfosp.local
     workspaces:
     - name: app-source
       workspace: app-source
@@ -63,6 +67,8 @@ spec:
       value: $(tasks.pre-build.results.build-revision-tag)
     - name: build-revision
       value: $(tasks.pre-build.results.build-revision)
+    - name: image-repository
+      value: harbor-infra.rfosp.local
     when:
     - input: $(tasks.pre-build.results.build-exists)
       operator: notin
@@ -88,6 +94,8 @@ spec:
       value: /rfosp/$(params.module)/$(params.subproject)
     - name: TAG
       value: $(tasks.pre-build.results.build-number)
+    - name: image-repository
+      value: harbor-infra.rfosp.local
     workspaces:
     - name: app-source
       workspace: app-source
@@ -107,6 +115,8 @@ spec:
       value: $(tasks.pre-build.results.build-number)
     - name: GIT_TAG
       value: $(tasks.pre-build.results.build-revision-tag)
+    - name: image-repository
+      value: harbor-infra.rfosp.local
     when:
     - input: $(tasks.status)
       operator: in
@@ -129,3 +139,11 @@ spec:
       value: $(context.pipelineRun.namespace)
     - name: message
       value: 'Build `$(context.pipeline.name):$(tasks.pre-build.results.build-number)` finished with status: `$(tasks.status)`'
+    - name: image-repository
+      value: harbor-infra.rfosp.local
+    - name: tektonUrl
+      value: https://tekton.rfosp.local
+    - name: zulip-hostname
+      value: zulip.rfosp.local
+    - name: bot-email
+      value: tekton-bot@zulip.rfosp.local
