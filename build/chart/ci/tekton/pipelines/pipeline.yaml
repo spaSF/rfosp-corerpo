@@ -117,4 +117,4 @@ spec:
     - name: zulip-hostname
       value: zulip.rfosp.local
     - name: bot-email
-      value: tekton-bot@zulip.rfosp.local
+      value: tekton-bot-bot@zulip.rfosp.local
