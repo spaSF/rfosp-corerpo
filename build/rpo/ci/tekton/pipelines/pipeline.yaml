@@ -67,6 +67,8 @@ spec:
       value: $(tasks.pre-build.results.build-revision-tag)
     - name: build-revision
       value: $(tasks.pre-build.results.build-revision)
+    - name: image
+      value: library/build/gradle:7.5.1-jdk17-2022.10.03-2
     - name: image-repository
       value: harbor-infra.rfosp.local
     when:

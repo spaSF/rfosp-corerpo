@@ -65,6 +65,8 @@ spec:
     params:
     - name: version
       value: $(tasks.pre-build.results.build-number)
+    - name: image
+      value: library/build/chart-builder:helm-3.8.0-2022.10.03-1
     - name: image-repository
       value: harbor-infra.rfosp.local
     workspaces:
