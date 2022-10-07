@@ -1,4 +1,4 @@
-ARG  BASE_IMAGE=harbor-infra.rfosp.local/library/springboot:1-jdk17-2022.06.24-0
+ARG  BASE_IMAGE=harbor-infra.rfosp.local/library/springboot:1-jdk17-2022.10.03-0
 
 
 FROM ${BASE_IMAGE} as builder
